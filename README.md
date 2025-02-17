@@ -29,6 +29,8 @@ This Anti-Rape Safety Device is a patented wearable security solution designed t
 
   -> Data Analysis – Optimizing detection accuracy and emergency response.
 
+---------------------------------------------------------------------------------------------------------------------------------------
+
 📜 How It Works
 
   1️⃣ The pressure sensor detects an unwanted push or pull and triggers an alert.
