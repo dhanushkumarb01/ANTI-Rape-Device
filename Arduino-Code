@@ -1,0 +1,101 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <math.h>
+
+// Wi-Fi credentials
+const char* ssid = "Your_SSID";
+const char* password = "Your_PASSWORD";
+
+// Structure to hold police station data
+struct PoliceStation {
+    String name;
+    float latitude;
+    float longitude;
+};
+
+// List of all 85 police stations
+PoliceStation stations[] = {
+    {"Bawana Police station", 28.8055119, 77.0256424},
+    {"Shalimar Bagh Police Station", 28.7170924, 77.1571367},
+    {"Unknown", 28.6345193, 77.1810077},
+    {"Vikas Puri", 28.6301441, 77.0682683},
+    {"Ashok Vihar Police Station", 28.6925224, 77.1739049},
+    {"Najafgarh Police Thana", 28.6098145, 76.9828316},
+    {"Police Chowki", 28.6126106, 76.9867433},
+    {"Jaffar Pur Police Station", 28.5958543, 76.9151778},
+    {"Police Station Malviya Nagar", 28.5306718, 77.2045562},
+    {"Hari Nagar Police Station", 28.6097133, 77.0997911},
+    {"Prasad Nagar Police Station", 28.6478735, 77.180705},
+    {"Dwarka Ploce Station", 28.5649687, 77.0584523},
+    {"Police Booth", 28.6702484, 77.1336893},
+    {"Punjabi Bagh Police Station", 28.6741463, 77.1322843},
+    {"Rajendra Nagar Police Station", 28.634698, 77.1826937},
+    {"Police Residential Complex", 28.6349617, 77.1837505},
+    {"New Ashok Nagar Police Station", 28.5983359, 77.3112386},
+    {"Baba Haridas Nagar Police Station", 28.6289362, 76.9666822},
+    {"Police Station Karol Bagh", 28.652398, 77.1930248},
+    {"Police Station New Delhi Railway Station", 28.6437003, 77.2189266},
+    {"Police Post Majnu ka Tila", 28.6965167, 77.2270376},
+    {"Police Station Pul Prahladpur", 28.5019105, 77.2907092},
+    {"Kirti Nagar Police Station", 28.6402677, 77.135379},
+    {"Vivek Vihar", 28.667016, 77.3062943},
+    {"Bharat Nagar Police station", 28.6807121, 77.178135},
+    {"Women Facilitation Booth", 28.7283053, 77.1699161},
+    {"Police Post, Khan Market", 28.6003274, 77.2262488},
+    {"Gandhi Nagar Police Station", 28.6599766, 77.2671907},
+    {"Delhi Police — Mehrauli", 28.5262044, 77.1779413},
+    {"Keshavpur Sabzi Mandi", 28.6515928, 77.0881006},
+    {"Police Station Mandawali", 28.6250464, 77.3061809},
+    {"Police Station Madhu Vihar", 28.6250657, 77.3062871},
+    {"Tourist Police Booth", 28.6420284, 77.2182954},
+    {"Delhi Police", 28.6487676, 77.3161693}
+    // Add more stations as needed...
+};
+int numStations = sizeof(stations) / sizeof(stations[0]);
+
+// Haversine formula to calculate the distance
+float calculateDistance(float lat1, float lon1, float lat2, float lon2) {
+    const float R = 6371.0;
+    float dLat = radians(lat2 - lat1);
+    float dLon = radians(lon2 - lon1);
+    float a = sin(dLat / 2) * sin(dLat / 2) + cos(radians(lat1)) * cos(radians(lat2)) * sin(dLon / 2) * sin(dLon / 2);
+    float c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return R * c;
+}
+
+String findNearestStation(float currentLat, float currentLon) {
+    float minDistance = INFINITY;
+    String nearestStation = "";
+    for (int i = 0; i < numStations; i++) {
+        float distance = calculateDistance(currentLat, currentLon, stations[i].latitude, stations[i].longitude);
+        if (distance < minDistance) {
+            minDistance = distance;
+            nearestStation = stations[i].name;
+        }
+    }
+    return nearestStation;
+}
+
+void sendAlert(String stationName) {
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+        http.begin("http://your-server-url.com/alert");
+        http.addHeader("Content-Type", "application/json");
+        String message = "{\"station\":\"" + stationName + "\", \"message\":\"Emergency Alert!\"}";
+        int httpCode = http.POST(message);
+        http.end();
+    }
+}
+
+void setup() {
+    Serial.begin(115200);
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) delay(500);
+    float deviceLatitude = 28.6139, deviceLongitude = 77.2090;
+    String nearestStation = findNearestStation(deviceLatitude, deviceLongitude);
+    sendAlert(nearestStation);
+}
+
+void loop() {
+    delay(60000);
+}
