@@ -42,3 +42,5 @@ This Anti-Rape Safety Device is a patented wearable security solution designed t
   4️⃣ The YOLO AI model detects harmful objects and captures images for evidence.
 
   5️⃣ The camera and microphone start recording to document the incident.
+
+  -YOUTUBE LINK: https://youtu.be/MrWHrNwUWx0?si=dXoMjefBXJwKr6p0
